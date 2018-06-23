@@ -1681,9 +1681,11 @@ skip_body:
 class ErrorBitfield
 {
     static const unsigned kWords = kOrder / 64;
-    uint64_t Words[7][kWords] = {};
+    uint64_t Words[7][kWords];
 
 public:
+    ErrorBitfield() : Words{ { 0, }, } { }
+
     LEO_FORCE_INLINE void Set(unsigned i)
     {
         Words[0][i / 64] |= (uint64_t)1 << (i % 64);
