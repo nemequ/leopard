@@ -100,17 +100,17 @@ matrix:
     #       - g++-4.7
     #       - cmake
     #       - cmake-data
-    # - env: C_COMPILER=gcc-4.6 CXX_COMPILER=g++-4.6
-    #   addons:
-    #     apt:
-    #       sources:
-    #       - ubuntu-toolchain-r-test
-    #       - george-edison55-precise-backports
-    #       packages:
-    #       - gcc-4.6
-    #       - g++-4.6
-    #       - cmake
-    #       - cmake-data
+    - env: C_COMPILER=gcc-4.6 CXX_COMPILER=g++-4.6
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          - george-edison55-precise-backports
+          packages:
+          - gcc-4.6
+          - g++-4.6
+          - cmake
+          - cmake-data
     # - os: linux
     #   env: C_COMPILER=gcc-4.5 CXX_COMPILER=g++-4.5
     #   addons:

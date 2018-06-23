@@ -1477,16 +1477,22 @@ class ErrorBitfield
 {
     static const unsigned kWordMips = 5;
     static const unsigned kWords = kOrder / 64;
-    uint64_t Words[kWordMips][kWords] = {};
+    uint64_t Words[kWordMips][kWords];
 
     static const unsigned kBigMips = 6;
     static const unsigned kBigWords = (kWords + 63) / 64;
-    uint64_t BigWords[kBigMips][kBigWords] = {};
+    uint64_t BigWords[kBigMips][kBigWords];
 
     static const unsigned kBiggestMips = 4;
-    uint64_t BiggestWords[kBiggestMips] = {};
+    uint64_t BiggestWords[kBiggestMips];
 
 public:
+    ErrorBitfield() :
+        Words{ { 0, }, },
+        BigWords{ { 0, }, },
+        BiggestWords{ 0, }
+    { }
+
     LEO_FORCE_INLINE void Set(unsigned i)
     {
         Words[0][i / 64] |= (uint64_t)1 << (i % 64);

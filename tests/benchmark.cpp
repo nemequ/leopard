@@ -41,16 +41,23 @@ using namespace std;
 
 struct TestParameters
 {
+    unsigned original_count;
+    unsigned recovery_count;
+    unsigned buffer_bytes;
+    unsigned loss_count;
+    unsigned seed;
+
+    TestParameters() :
 #ifdef LEO_HAS_FF16
-    unsigned original_count = 1000; // under 65536
-    unsigned recovery_count = 100; // under 65536 - original_count
+        original_count(1000), // under 65536
+        recovery_count(100), // under 65536 - original_count
 #else
-    unsigned original_count = 100; // under 65536
-    unsigned recovery_count = 10; // under 65536 - original_count
+        original_count(100), // under 65536
+        recovery_count(10), // under 65536 - original_count
 #endif
-    unsigned buffer_bytes = 64000; // multiple of 64 bytes
-    unsigned loss_count = 32768; // some fraction of original_count
-    unsigned seed = 2;
+        buffer_bytes(64000), // multiple of 64 bytes
+        loss_count(32768), // some fraction of original_count
+        seed(2) { }
 };
 
 static const unsigned kLargeTrialCount = 1;
@@ -152,7 +159,11 @@ public:
         return (xorshifted >> rot) | (xorshifted << ((uint32_t)(-(int32_t)rot) & 31));
     }
 
-    uint64_t State = 0, Inc = 0;
+    uint64_t State, Inc;
+
+    PCGRandom() :
+        State(0),
+        Inc(0) { }
 };
 
 
@@ -235,7 +246,12 @@ static bool CheckPacket(const void* packet, unsigned bytes)
 class FunctionTimer
 {
 public:
-    FunctionTimer(const std::string& name)
+    FunctionTimer(const std::string& name) :
+        t0(0),
+        Invokations(0),
+        TotalUsec(0),
+        MaxCallUsec(0),
+        MinCallUsec(0)
     {
         FunctionName = name;
     }
@@ -270,11 +286,11 @@ public:
         cout << FunctionName << " called " << Invokations / (float)trials << " times per trial. " << TotalUsec / (double)Invokations << " usec avg. " << TotalUsec / (float)trials << " usec for each of " << trials << " trials" << endl;
     }
 
-    uint64_t t0 = 0;
-    uint64_t Invokations = 0;
-    uint64_t TotalUsec = 0;
-    uint64_t MaxCallUsec = 0;
-    uint64_t MinCallUsec = 0;
+    uint64_t t0;
+    uint64_t Invokations;
+    uint64_t TotalUsec;
+    uint64_t MaxCallUsec;
+    uint64_t MinCallUsec;
     std::string FunctionName;
 };
 
