@@ -1488,9 +1488,9 @@ class ErrorBitfield
 
 public:
     ErrorBitfield() :
-        Words{ { 0, }, },
-        BigWords{ { 0, }, },
-        BiggestWords{ 0, }
+        Words{ { } },
+        BigWords{ { } },
+        BiggestWords{ }
     { }
 
     LEO_FORCE_INLINE void Set(unsigned i)

@@ -1684,7 +1684,7 @@ class ErrorBitfield
     uint64_t Words[7][kWords];
 
 public:
-    ErrorBitfield() : Words{ { 0, }, } { }
+    ErrorBitfield() : Words{ { } } { }
 
     LEO_FORCE_INLINE void Set(unsigned i)
     {
