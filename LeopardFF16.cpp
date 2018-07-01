@@ -215,38 +215,38 @@ struct Multiply128LUT_t
 static const Multiply128LUT_t* Multiply128LUT = nullptr;
 
 #define LEO_MUL_TABLES_128(table, log_m) \
-    const LEO_M128 T0_lo_##table = _mm_loadu_si128(&Multiply128LUT[log_m].Lo[0]); \
-    const LEO_M128 T1_lo_##table = _mm_loadu_si128(&Multiply128LUT[log_m].Lo[1]); \
-    const LEO_M128 T2_lo_##table = _mm_loadu_si128(&Multiply128LUT[log_m].Lo[2]); \
-    const LEO_M128 T3_lo_##table = _mm_loadu_si128(&Multiply128LUT[log_m].Lo[3]); \
-    const LEO_M128 T0_hi_##table = _mm_loadu_si128(&Multiply128LUT[log_m].Hi[0]); \
-    const LEO_M128 T1_hi_##table = _mm_loadu_si128(&Multiply128LUT[log_m].Hi[1]); \
-    const LEO_M128 T2_hi_##table = _mm_loadu_si128(&Multiply128LUT[log_m].Hi[2]); \
-    const LEO_M128 T3_hi_##table = _mm_loadu_si128(&Multiply128LUT[log_m].Hi[3]);
+    const LEO_M128 T0_lo_##table = simde_mm_loadu_si128(&Multiply128LUT[log_m].Lo[0]); \
+    const LEO_M128 T1_lo_##table = simde_mm_loadu_si128(&Multiply128LUT[log_m].Lo[1]); \
+    const LEO_M128 T2_lo_##table = simde_mm_loadu_si128(&Multiply128LUT[log_m].Lo[2]); \
+    const LEO_M128 T3_lo_##table = simde_mm_loadu_si128(&Multiply128LUT[log_m].Lo[3]); \
+    const LEO_M128 T0_hi_##table = simde_mm_loadu_si128(&Multiply128LUT[log_m].Hi[0]); \
+    const LEO_M128 T1_hi_##table = simde_mm_loadu_si128(&Multiply128LUT[log_m].Hi[1]); \
+    const LEO_M128 T2_hi_##table = simde_mm_loadu_si128(&Multiply128LUT[log_m].Hi[2]); \
+    const LEO_M128 T3_hi_##table = simde_mm_loadu_si128(&Multiply128LUT[log_m].Hi[3]);
 
 // 128-bit {prod_lo, prod_hi} = {value_lo, value_hi} * log_m
 #define LEO_MUL_128(value_lo, value_hi, table) { \
-            LEO_M128 data_1 = _mm_srli_epi64(value_lo, 4); \
-            LEO_M128 data_0 = _mm_and_si128(value_lo, clr_mask); \
-            data_1 = _mm_and_si128(data_1, clr_mask); \
-            prod_lo = _mm_shuffle_epi8(T0_lo_##table, data_0); \
-            prod_hi = _mm_shuffle_epi8(T0_hi_##table, data_0); \
-            prod_lo = _mm_xor_si128(prod_lo, _mm_shuffle_epi8(T1_lo_##table, data_1)); \
-            prod_hi = _mm_xor_si128(prod_hi, _mm_shuffle_epi8(T1_hi_##table, data_1)); \
-            data_0 = _mm_and_si128(value_hi, clr_mask); \
-            data_1 = _mm_srli_epi64(value_hi, 4); \
-            data_1 = _mm_and_si128(data_1, clr_mask); \
-            prod_lo = _mm_xor_si128(prod_lo, _mm_shuffle_epi8(T2_lo_##table, data_0)); \
-            prod_hi = _mm_xor_si128(prod_hi, _mm_shuffle_epi8(T2_hi_##table, data_0)); \
-            prod_lo = _mm_xor_si128(prod_lo, _mm_shuffle_epi8(T3_lo_##table, data_1)); \
-            prod_hi = _mm_xor_si128(prod_hi, _mm_shuffle_epi8(T3_hi_##table, data_1)); }
+            LEO_M128 data_1 = simde_mm_srli_epi64(value_lo, 4); \
+            LEO_M128 data_0 = simde_mm_and_si128(value_lo, clr_mask); \
+            data_1 = simde_mm_and_si128(data_1, clr_mask); \
+            prod_lo = simde_mm_shuffle_epi8(T0_lo_##table, data_0); \
+            prod_hi = simde_mm_shuffle_epi8(T0_hi_##table, data_0); \
+            prod_lo = simde_mm_xor_si128(prod_lo, simde_mm_shuffle_epi8(T1_lo_##table, data_1)); \
+            prod_hi = simde_mm_xor_si128(prod_hi, simde_mm_shuffle_epi8(T1_hi_##table, data_1)); \
+            data_0 = simde_mm_and_si128(value_hi, clr_mask); \
+            data_1 = simde_mm_srli_epi64(value_hi, 4); \
+            data_1 = simde_mm_and_si128(data_1, clr_mask); \
+            prod_lo = simde_mm_xor_si128(prod_lo, simde_mm_shuffle_epi8(T2_lo_##table, data_0)); \
+            prod_hi = simde_mm_xor_si128(prod_hi, simde_mm_shuffle_epi8(T2_hi_##table, data_0)); \
+            prod_lo = simde_mm_xor_si128(prod_lo, simde_mm_shuffle_epi8(T3_lo_##table, data_1)); \
+            prod_hi = simde_mm_xor_si128(prod_hi, simde_mm_shuffle_epi8(T3_hi_##table, data_1)); }
 
 // {x_lo, x_hi} ^= {y_lo, y_hi} * log_m
 #define LEO_MULADD_128(x_lo, x_hi, y_lo, y_hi, table) { \
             LEO_M128 prod_lo, prod_hi; \
             LEO_MUL_128(y_lo, y_hi, table); \
-            x_lo = _mm_xor_si128(x_lo, prod_lo); \
-            x_hi = _mm_xor_si128(x_hi, prod_hi); }
+            x_lo = simde_mm_xor_si128(x_lo, prod_lo); \
+            x_hi = simde_mm_xor_si128(x_hi, prod_hi); }
 
 
 #if defined(LEO_TRY_AVX2)
@@ -260,38 +260,38 @@ struct Multiply256LUT_t
 static const Multiply256LUT_t* Multiply256LUT = nullptr;
 
 #define LEO_MUL_TABLES_256(table, log_m) \
-        const LEO_M256 T0_lo_##table = _mm256_loadu_si256(&Multiply256LUT[log_m].Lo[0]); \
-        const LEO_M256 T1_lo_##table = _mm256_loadu_si256(&Multiply256LUT[log_m].Lo[1]); \
-        const LEO_M256 T2_lo_##table = _mm256_loadu_si256(&Multiply256LUT[log_m].Lo[2]); \
-        const LEO_M256 T3_lo_##table = _mm256_loadu_si256(&Multiply256LUT[log_m].Lo[3]); \
-        const LEO_M256 T0_hi_##table = _mm256_loadu_si256(&Multiply256LUT[log_m].Hi[0]); \
-        const LEO_M256 T1_hi_##table = _mm256_loadu_si256(&Multiply256LUT[log_m].Hi[1]); \
-        const LEO_M256 T2_hi_##table = _mm256_loadu_si256(&Multiply256LUT[log_m].Hi[2]); \
-        const LEO_M256 T3_hi_##table = _mm256_loadu_si256(&Multiply256LUT[log_m].Hi[3]);
+        const LEO_M256 T0_lo_##table = simde_mm256_loadu_si256(&Multiply256LUT[log_m].Lo[0]); \
+        const LEO_M256 T1_lo_##table = simde_mm256_loadu_si256(&Multiply256LUT[log_m].Lo[1]); \
+        const LEO_M256 T2_lo_##table = simde_mm256_loadu_si256(&Multiply256LUT[log_m].Lo[2]); \
+        const LEO_M256 T3_lo_##table = simde_mm256_loadu_si256(&Multiply256LUT[log_m].Lo[3]); \
+        const LEO_M256 T0_hi_##table = simde_mm256_loadu_si256(&Multiply256LUT[log_m].Hi[0]); \
+        const LEO_M256 T1_hi_##table = simde_mm256_loadu_si256(&Multiply256LUT[log_m].Hi[1]); \
+        const LEO_M256 T2_hi_##table = simde_mm256_loadu_si256(&Multiply256LUT[log_m].Hi[2]); \
+        const LEO_M256 T3_hi_##table = simde_mm256_loadu_si256(&Multiply256LUT[log_m].Hi[3]);
 
 // 256-bit {prod_lo, prod_hi} = {value_lo, value_hi} * log_m
 #define LEO_MUL_256(value_lo, value_hi, table) { \
-            LEO_M256 data_1 = _mm256_srli_epi64(value_lo, 4); \
-            LEO_M256 data_0 = _mm256_and_si256(value_lo, clr_mask); \
-            data_1 = _mm256_and_si256(data_1, clr_mask); \
-            prod_lo = _mm256_shuffle_epi8(T0_lo_##table, data_0); \
-            prod_hi = _mm256_shuffle_epi8(T0_hi_##table, data_0); \
-            prod_lo = _mm256_xor_si256(prod_lo, _mm256_shuffle_epi8(T1_lo_##table, data_1)); \
-            prod_hi = _mm256_xor_si256(prod_hi, _mm256_shuffle_epi8(T1_hi_##table, data_1)); \
-            data_0 = _mm256_and_si256(value_hi, clr_mask); \
-            data_1 = _mm256_srli_epi64(value_hi, 4); \
-            data_1 = _mm256_and_si256(data_1, clr_mask); \
-            prod_lo = _mm256_xor_si256(prod_lo, _mm256_shuffle_epi8(T2_lo_##table, data_0)); \
-            prod_hi = _mm256_xor_si256(prod_hi, _mm256_shuffle_epi8(T2_hi_##table, data_0)); \
-            prod_lo = _mm256_xor_si256(prod_lo, _mm256_shuffle_epi8(T3_lo_##table, data_1)); \
-            prod_hi = _mm256_xor_si256(prod_hi, _mm256_shuffle_epi8(T3_hi_##table, data_1)); }
+            LEO_M256 data_1 = simde_mm256_srli_epi64(value_lo, 4); \
+            LEO_M256 data_0 = simde_mm256_and_si256(value_lo, clr_mask); \
+            data_1 = simde_mm256_and_si256(data_1, clr_mask); \
+            prod_lo = simde_mm256_shuffle_epi8(T0_lo_##table, data_0); \
+            prod_hi = simde_mm256_shuffle_epi8(T0_hi_##table, data_0); \
+            prod_lo = simde_mm256_xor_si256(prod_lo, simde_mm256_shuffle_epi8(T1_lo_##table, data_1)); \
+            prod_hi = simde_mm256_xor_si256(prod_hi, simde_mm256_shuffle_epi8(T1_hi_##table, data_1)); \
+            data_0 = simde_mm256_and_si256(value_hi, clr_mask); \
+            data_1 = simde_mm256_srli_epi64(value_hi, 4); \
+            data_1 = simde_mm256_and_si256(data_1, clr_mask); \
+            prod_lo = simde_mm256_xor_si256(prod_lo, simde_mm256_shuffle_epi8(T2_lo_##table, data_0)); \
+            prod_hi = simde_mm256_xor_si256(prod_hi, simde_mm256_shuffle_epi8(T2_hi_##table, data_0)); \
+            prod_lo = simde_mm256_xor_si256(prod_lo, simde_mm256_shuffle_epi8(T3_lo_##table, data_1)); \
+            prod_hi = simde_mm256_xor_si256(prod_hi, simde_mm256_shuffle_epi8(T3_hi_##table, data_1)); }
 
 // {x_lo, x_hi} ^= {y_lo, y_hi} * log_m
 #define LEO_MULADD_256(x_lo, x_hi, y_lo, y_hi, table) { \
             LEO_M256 prod_lo, prod_hi; \
             LEO_MUL_256(y_lo, y_hi, table); \
-            x_lo = _mm256_xor_si256(x_lo, prod_lo); \
-            x_hi = _mm256_xor_si256(x_hi, prod_hi); }
+            x_lo = simde_mm256_xor_si256(x_lo, prod_lo); \
+            x_hi = simde_mm256_xor_si256(x_hi, prod_hi); }
 
 #endif // LEO_TRY_AVX2
 
@@ -423,26 +423,26 @@ static void InitializeMultiplyTables()
                 prod_hi[x] = static_cast<uint8_t>(prod >> 8);
             }
 
-            const LEO_M128 value_lo = _mm_loadu_si128((LEO_M128*)prod_lo);
-            const LEO_M128 value_hi = _mm_loadu_si128((LEO_M128*)prod_hi);
+            const LEO_M128 value_lo = simde_mm_loadu_si128((LEO_M128*)prod_lo);
+            const LEO_M128 value_hi = simde_mm_loadu_si128((LEO_M128*)prod_hi);
 
             // Store in 128-bit wide table
 #if defined(LEO_TRY_AVX2)
             if (!CpuHasAVX2)
 #endif // LEO_TRY_AVX2
             {
-                _mm_storeu_si128((LEO_M128*)&Multiply128LUT[log_m].Lo[i], value_lo);
-                _mm_storeu_si128((LEO_M128*)&Multiply128LUT[log_m].Hi[i], value_hi);
+                simde_mm_storeu_si128((LEO_M128*)&Multiply128LUT[log_m].Lo[i], value_lo);
+                simde_mm_storeu_si128((LEO_M128*)&Multiply128LUT[log_m].Hi[i], value_hi);
             }
 
             // Store in 256-bit wide table
 #if defined(LEO_TRY_AVX2)
             if (CpuHasAVX2)
             {
-                _mm256_storeu_si256((LEO_M256*)&Multiply256LUT[log_m].Lo[i],
-                    _mm256_broadcastsi128_si256(value_lo));
-                _mm256_storeu_si256((LEO_M256*)&Multiply256LUT[log_m].Hi[i],
-                    _mm256_broadcastsi128_si256(value_hi));
+                simde_mm256_storeu_si256((LEO_M256*)&Multiply256LUT[log_m].Lo[i],
+                    simde_mm256_broadcastsi128_si256(value_lo));
+                simde_mm256_storeu_si256((LEO_M256*)&Multiply256LUT[log_m].Hi[i],
+                    simde_mm256_broadcastsi128_si256(value_hi));
             }
 #endif // LEO_TRY_AVX2
         }
@@ -459,7 +459,7 @@ static void mul_mem(
     {
         LEO_MUL_TABLES_256(0, log_m);
 
-        const LEO_M256 clr_mask = _mm256_set1_epi8(0x0f);
+        const LEO_M256 clr_mask = simde_mm256_set1_epi8(0x0f);
 
         LEO_M256 * LEO_RESTRICT x32 = reinterpret_cast<LEO_M256 *>(x);
         const LEO_M256 * LEO_RESTRICT y32 = reinterpret_cast<const LEO_M256 *>(y);
@@ -467,12 +467,12 @@ static void mul_mem(
         do
         {
 #define LEO_MUL_256_LS(x_ptr, y_ptr) { \
-            const LEO_M256 data_lo = _mm256_loadu_si256(y_ptr); \
-            const LEO_M256 data_hi = _mm256_loadu_si256(y_ptr + 1); \
+            const LEO_M256 data_lo = simde_mm256_loadu_si256(y_ptr); \
+            const LEO_M256 data_hi = simde_mm256_loadu_si256(y_ptr + 1); \
             LEO_M256 prod_lo, prod_hi; \
             LEO_MUL_256(data_lo, data_hi, 0); \
-            _mm256_storeu_si256(x_ptr, prod_lo); \
-            _mm256_storeu_si256(x_ptr + 1, prod_hi); }
+            simde_mm256_storeu_si256(x_ptr, prod_lo); \
+            simde_mm256_storeu_si256(x_ptr + 1, prod_hi); }
 
             LEO_MUL_256_LS(x32, y32);
             y32 += 2, x32 += 2;
@@ -488,7 +488,7 @@ static void mul_mem(
     {
         LEO_MUL_TABLES_128(0, log_m);
 
-        const LEO_M128 clr_mask = _mm_set1_epi8(0x0f);
+        const LEO_M128 clr_mask = simde_mm_set1_epi8(0x0f);
 
         LEO_M128 * LEO_RESTRICT x16 = reinterpret_cast<LEO_M128 *>(x);
         const LEO_M128 * LEO_RESTRICT y16 = reinterpret_cast<const LEO_M128 *>(y);
@@ -496,12 +496,12 @@ static void mul_mem(
         do
         {
 #define LEO_MUL_128_LS(x_ptr, y_ptr) { \
-                const LEO_M128 data_lo = _mm_loadu_si128(y_ptr); \
-                const LEO_M128 data_hi = _mm_loadu_si128(y_ptr + 2); \
+                const LEO_M128 data_lo = simde_mm_loadu_si128(y_ptr); \
+                const LEO_M128 data_hi = simde_mm_loadu_si128(y_ptr + 2); \
                 LEO_M128 prod_lo, prod_hi; \
                 LEO_MUL_128(data_lo, data_hi, 0); \
-                _mm_storeu_si128(x_ptr, prod_lo); \
-                _mm_storeu_si128(x_ptr + 2, prod_hi); }
+                simde_mm_storeu_si128(x_ptr, prod_lo); \
+                simde_mm_storeu_si128(x_ptr + 2, prod_hi); }
 
             LEO_MUL_128_LS(x16 + 1, y16 + 1);
             LEO_MUL_128_LS(x16, y16);
@@ -593,9 +593,9 @@ static void FFTInitialize()
         0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
         ^___^   ^___^   ^___^   ^___^
           ^___^   ^___^   ^___^   ^___^
-  
+
     Layer 2:
-        0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 
+        0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
         ^_______^       ^_______^
           ^_______^       ^_______^
             ^_______^       ^_______^
@@ -635,7 +635,7 @@ static void IFFT_DIT2(
     {
         LEO_MUL_TABLES_256(0, log_m);
 
-        const LEO_M256 clr_mask = _mm256_set1_epi8(0x0f);
+        const LEO_M256 clr_mask = simde_mm256_set1_epi8(0x0f);
 
         LEO_M256 * LEO_RESTRICT x32 = reinterpret_cast<LEO_M256 *>(x);
         LEO_M256 * LEO_RESTRICT y32 = reinterpret_cast<LEO_M256 *>(y);
@@ -643,17 +643,17 @@ static void IFFT_DIT2(
         do
         {
 #define LEO_IFFTB_256(x_ptr, y_ptr) { \
-            LEO_M256 x_lo = _mm256_loadu_si256(x_ptr); \
-            LEO_M256 x_hi = _mm256_loadu_si256(x_ptr + 1); \
-            LEO_M256 y_lo = _mm256_loadu_si256(y_ptr); \
-            LEO_M256 y_hi = _mm256_loadu_si256(y_ptr + 1); \
-            y_lo = _mm256_xor_si256(y_lo, x_lo); \
-            y_hi = _mm256_xor_si256(y_hi, x_hi); \
-            _mm256_storeu_si256(y_ptr, y_lo); \
-            _mm256_storeu_si256(y_ptr + 1, y_hi); \
+            LEO_M256 x_lo = simde_mm256_loadu_si256(x_ptr); \
+            LEO_M256 x_hi = simde_mm256_loadu_si256(x_ptr + 1); \
+            LEO_M256 y_lo = simde_mm256_loadu_si256(y_ptr); \
+            LEO_M256 y_hi = simde_mm256_loadu_si256(y_ptr + 1); \
+            y_lo = simde_mm256_xor_si256(y_lo, x_lo); \
+            y_hi = simde_mm256_xor_si256(y_hi, x_hi); \
+            simde_mm256_storeu_si256(y_ptr, y_lo); \
+            simde_mm256_storeu_si256(y_ptr + 1, y_hi); \
             LEO_MULADD_256(x_lo, x_hi, y_lo, y_hi, 0); \
-            _mm256_storeu_si256(x_ptr, x_lo); \
-            _mm256_storeu_si256(x_ptr + 1, x_hi); }
+            simde_mm256_storeu_si256(x_ptr, x_lo); \
+            simde_mm256_storeu_si256(x_ptr + 1, x_hi); }
 
             LEO_IFFTB_256(x32, y32);
             y32 += 2, x32 += 2;
@@ -669,7 +669,7 @@ static void IFFT_DIT2(
     {
         LEO_MUL_TABLES_128(0, log_m);
 
-        const LEO_M128 clr_mask = _mm_set1_epi8(0x0f);
+        const LEO_M128 clr_mask = simde_mm_set1_epi8(0x0f);
 
         LEO_M128 * LEO_RESTRICT x16 = reinterpret_cast<LEO_M128 *>(x);
         LEO_M128 * LEO_RESTRICT y16 = reinterpret_cast<LEO_M128 *>(y);
@@ -677,17 +677,17 @@ static void IFFT_DIT2(
         do
         {
 #define LEO_IFFTB_128(x_ptr, y_ptr) { \
-                LEO_M128 x_lo = _mm_loadu_si128(x_ptr); \
-                LEO_M128 x_hi = _mm_loadu_si128(x_ptr + 2); \
-                LEO_M128 y_lo = _mm_loadu_si128(y_ptr); \
-                LEO_M128 y_hi = _mm_loadu_si128(y_ptr + 2); \
-                y_lo = _mm_xor_si128(y_lo, x_lo); \
-                y_hi = _mm_xor_si128(y_hi, x_hi); \
-                _mm_storeu_si128(y_ptr, y_lo); \
-                _mm_storeu_si128(y_ptr + 2, y_hi); \
+                LEO_M128 x_lo = simde_mm_loadu_si128(x_ptr); \
+                LEO_M128 x_hi = simde_mm_loadu_si128(x_ptr + 2); \
+                LEO_M128 y_lo = simde_mm_loadu_si128(y_ptr); \
+                LEO_M128 y_hi = simde_mm_loadu_si128(y_ptr + 2); \
+                y_lo = simde_mm_xor_si128(y_lo, x_lo); \
+                y_hi = simde_mm_xor_si128(y_hi, x_hi); \
+                simde_mm_storeu_si128(y_ptr, y_lo); \
+                simde_mm_storeu_si128(y_ptr + 2, y_hi); \
                 LEO_MULADD_128(x_lo, x_hi, y_lo, y_hi, 0); \
-                _mm_storeu_si128(x_ptr, x_lo); \
-                _mm_storeu_si128(x_ptr + 2, x_hi); }
+                simde_mm_storeu_si128(x_ptr, x_lo); \
+                simde_mm_storeu_si128(x_ptr + 2, x_hi); }
 
             LEO_IFFTB_128(x16 + 1, y16 + 1);
             LEO_IFFTB_128(x16, y16);
@@ -724,7 +724,7 @@ static void IFFT_DIT4(
         LEO_MUL_TABLES_256(23, log_m23);
         LEO_MUL_TABLES_256(02, log_m02);
 
-        const LEO_M256 clr_mask = _mm256_set1_epi8(0x0f);
+        const LEO_M256 clr_mask = simde_mm256_set1_epi8(0x0f);
 
         LEO_M256 * LEO_RESTRICT work0 = reinterpret_cast<LEO_M256 *>(work[0]);
         LEO_M256 * LEO_RESTRICT work1 = reinterpret_cast<LEO_M256 *>(work[dist]);
@@ -733,46 +733,46 @@ static void IFFT_DIT4(
 
         do
         {
-            LEO_M256 work_reg_lo_0 = _mm256_loadu_si256(work0);
-            LEO_M256 work_reg_hi_0 = _mm256_loadu_si256(work0 + 1);
-            LEO_M256 work_reg_lo_1 = _mm256_loadu_si256(work1);
-            LEO_M256 work_reg_hi_1 = _mm256_loadu_si256(work1 + 1);
+            LEO_M256 work_reg_lo_0 = simde_mm256_loadu_si256(work0);
+            LEO_M256 work_reg_hi_0 = simde_mm256_loadu_si256(work0 + 1);
+            LEO_M256 work_reg_lo_1 = simde_mm256_loadu_si256(work1);
+            LEO_M256 work_reg_hi_1 = simde_mm256_loadu_si256(work1 + 1);
 
             // First layer:
-            work_reg_lo_1 = _mm256_xor_si256(work_reg_lo_0, work_reg_lo_1);
-            work_reg_hi_1 = _mm256_xor_si256(work_reg_hi_0, work_reg_hi_1);
+            work_reg_lo_1 = simde_mm256_xor_si256(work_reg_lo_0, work_reg_lo_1);
+            work_reg_hi_1 = simde_mm256_xor_si256(work_reg_hi_0, work_reg_hi_1);
             if (log_m01 != kModulus)
                 LEO_MULADD_256(work_reg_lo_0, work_reg_hi_0, work_reg_lo_1, work_reg_hi_1, 01);
 
-            LEO_M256 work_reg_lo_2 = _mm256_loadu_si256(work2);
-            LEO_M256 work_reg_hi_2 = _mm256_loadu_si256(work2 + 1);
-            LEO_M256 work_reg_lo_3 = _mm256_loadu_si256(work3);
-            LEO_M256 work_reg_hi_3 = _mm256_loadu_si256(work3 + 1);
+            LEO_M256 work_reg_lo_2 = simde_mm256_loadu_si256(work2);
+            LEO_M256 work_reg_hi_2 = simde_mm256_loadu_si256(work2 + 1);
+            LEO_M256 work_reg_lo_3 = simde_mm256_loadu_si256(work3);
+            LEO_M256 work_reg_hi_3 = simde_mm256_loadu_si256(work3 + 1);
 
-            work_reg_lo_3 = _mm256_xor_si256(work_reg_lo_2, work_reg_lo_3);
-            work_reg_hi_3 = _mm256_xor_si256(work_reg_hi_2, work_reg_hi_3);
+            work_reg_lo_3 = simde_mm256_xor_si256(work_reg_lo_2, work_reg_lo_3);
+            work_reg_hi_3 = simde_mm256_xor_si256(work_reg_hi_2, work_reg_hi_3);
             if (log_m23 != kModulus)
                 LEO_MULADD_256(work_reg_lo_2, work_reg_hi_2, work_reg_lo_3, work_reg_hi_3, 23);
 
             // Second layer:
-            work_reg_lo_2 = _mm256_xor_si256(work_reg_lo_0, work_reg_lo_2);
-            work_reg_hi_2 = _mm256_xor_si256(work_reg_hi_0, work_reg_hi_2);
-            work_reg_lo_3 = _mm256_xor_si256(work_reg_lo_1, work_reg_lo_3);
-            work_reg_hi_3 = _mm256_xor_si256(work_reg_hi_1, work_reg_hi_3);
+            work_reg_lo_2 = simde_mm256_xor_si256(work_reg_lo_0, work_reg_lo_2);
+            work_reg_hi_2 = simde_mm256_xor_si256(work_reg_hi_0, work_reg_hi_2);
+            work_reg_lo_3 = simde_mm256_xor_si256(work_reg_lo_1, work_reg_lo_3);
+            work_reg_hi_3 = simde_mm256_xor_si256(work_reg_hi_1, work_reg_hi_3);
             if (log_m02 != kModulus)
             {
                 LEO_MULADD_256(work_reg_lo_0, work_reg_hi_0, work_reg_lo_2, work_reg_hi_2, 02);
                 LEO_MULADD_256(work_reg_lo_1, work_reg_hi_1, work_reg_lo_3, work_reg_hi_3, 02);
             }
 
-            _mm256_storeu_si256(work0, work_reg_lo_0);
-            _mm256_storeu_si256(work0 + 1, work_reg_hi_0);
-            _mm256_storeu_si256(work1, work_reg_lo_1);
-            _mm256_storeu_si256(work1 + 1, work_reg_hi_1);
-            _mm256_storeu_si256(work2, work_reg_lo_2);
-            _mm256_storeu_si256(work2 + 1, work_reg_hi_2);
-            _mm256_storeu_si256(work3, work_reg_lo_3);
-            _mm256_storeu_si256(work3 + 1, work_reg_hi_3);
+            simde_mm256_storeu_si256(work0, work_reg_lo_0);
+            simde_mm256_storeu_si256(work0 + 1, work_reg_hi_0);
+            simde_mm256_storeu_si256(work1, work_reg_lo_1);
+            simde_mm256_storeu_si256(work1 + 1, work_reg_hi_1);
+            simde_mm256_storeu_si256(work2, work_reg_lo_2);
+            simde_mm256_storeu_si256(work2 + 1, work_reg_hi_2);
+            simde_mm256_storeu_si256(work3, work_reg_lo_3);
+            simde_mm256_storeu_si256(work3 + 1, work_reg_hi_3);
 
             work0 += 2, work1 += 2, work2 += 2, work3 += 2;
 
@@ -790,7 +790,7 @@ static void IFFT_DIT4(
         LEO_MUL_TABLES_128(23, log_m23);
         LEO_MUL_TABLES_128(02, log_m02);
 
-        const LEO_M128 clr_mask = _mm_set1_epi8(0x0f);
+        const LEO_M128 clr_mask = simde_mm_set1_epi8(0x0f);
 
         LEO_M128 * LEO_RESTRICT work0 = reinterpret_cast<LEO_M128 *>(work[0]);
         LEO_M128 * LEO_RESTRICT work1 = reinterpret_cast<LEO_M128 *>(work[dist]);
@@ -801,46 +801,46 @@ static void IFFT_DIT4(
         {
             for (unsigned i = 0; i < 2; ++i)
             {
-                LEO_M128 work_reg_lo_0 = _mm_loadu_si128(work0);
-                LEO_M128 work_reg_hi_0 = _mm_loadu_si128(work0 + 2);
-                LEO_M128 work_reg_lo_1 = _mm_loadu_si128(work1);
-                LEO_M128 work_reg_hi_1 = _mm_loadu_si128(work1 + 2);
+                LEO_M128 work_reg_lo_0 = simde_mm_loadu_si128(work0);
+                LEO_M128 work_reg_hi_0 = simde_mm_loadu_si128(work0 + 2);
+                LEO_M128 work_reg_lo_1 = simde_mm_loadu_si128(work1);
+                LEO_M128 work_reg_hi_1 = simde_mm_loadu_si128(work1 + 2);
 
                 // First layer:
-                work_reg_lo_1 = _mm_xor_si128(work_reg_lo_0, work_reg_lo_1);
-                work_reg_hi_1 = _mm_xor_si128(work_reg_hi_0, work_reg_hi_1);
+                work_reg_lo_1 = simde_mm_xor_si128(work_reg_lo_0, work_reg_lo_1);
+                work_reg_hi_1 = simde_mm_xor_si128(work_reg_hi_0, work_reg_hi_1);
                 if (log_m01 != kModulus)
                     LEO_MULADD_128(work_reg_lo_0, work_reg_hi_0, work_reg_lo_1, work_reg_hi_1, 01);
 
-                LEO_M128 work_reg_lo_2 = _mm_loadu_si128(work2);
-                LEO_M128 work_reg_hi_2 = _mm_loadu_si128(work2 + 2);
-                LEO_M128 work_reg_lo_3 = _mm_loadu_si128(work3);
-                LEO_M128 work_reg_hi_3 = _mm_loadu_si128(work3 + 2);
+                LEO_M128 work_reg_lo_2 = simde_mm_loadu_si128(work2);
+                LEO_M128 work_reg_hi_2 = simde_mm_loadu_si128(work2 + 2);
+                LEO_M128 work_reg_lo_3 = simde_mm_loadu_si128(work3);
+                LEO_M128 work_reg_hi_3 = simde_mm_loadu_si128(work3 + 2);
 
-                work_reg_lo_3 = _mm_xor_si128(work_reg_lo_2, work_reg_lo_3);
-                work_reg_hi_3 = _mm_xor_si128(work_reg_hi_2, work_reg_hi_3);
+                work_reg_lo_3 = simde_mm_xor_si128(work_reg_lo_2, work_reg_lo_3);
+                work_reg_hi_3 = simde_mm_xor_si128(work_reg_hi_2, work_reg_hi_3);
                 if (log_m23 != kModulus)
                     LEO_MULADD_128(work_reg_lo_2, work_reg_hi_2, work_reg_lo_3, work_reg_hi_3, 23);
 
                 // Second layer:
-                work_reg_lo_2 = _mm_xor_si128(work_reg_lo_0, work_reg_lo_2);
-                work_reg_hi_2 = _mm_xor_si128(work_reg_hi_0, work_reg_hi_2);
-                work_reg_lo_3 = _mm_xor_si128(work_reg_lo_1, work_reg_lo_3);
-                work_reg_hi_3 = _mm_xor_si128(work_reg_hi_1, work_reg_hi_3);
+                work_reg_lo_2 = simde_mm_xor_si128(work_reg_lo_0, work_reg_lo_2);
+                work_reg_hi_2 = simde_mm_xor_si128(work_reg_hi_0, work_reg_hi_2);
+                work_reg_lo_3 = simde_mm_xor_si128(work_reg_lo_1, work_reg_lo_3);
+                work_reg_hi_3 = simde_mm_xor_si128(work_reg_hi_1, work_reg_hi_3);
                 if (log_m02 != kModulus)
                 {
                     LEO_MULADD_128(work_reg_lo_0, work_reg_hi_0, work_reg_lo_2, work_reg_hi_2, 02);
                     LEO_MULADD_128(work_reg_lo_1, work_reg_hi_1, work_reg_lo_3, work_reg_hi_3, 02);
                 }
 
-                _mm_storeu_si128(work0, work_reg_lo_0);
-                _mm_storeu_si128(work0 + 2, work_reg_hi_0);
-                _mm_storeu_si128(work1, work_reg_lo_1);
-                _mm_storeu_si128(work1 + 2, work_reg_hi_1);
-                _mm_storeu_si128(work2, work_reg_lo_2);
-                _mm_storeu_si128(work2 + 2, work_reg_hi_2);
-                _mm_storeu_si128(work3, work_reg_lo_3);
-                _mm_storeu_si128(work3 + 2, work_reg_hi_3);
+                simde_mm_storeu_si128(work0, work_reg_lo_0);
+                simde_mm_storeu_si128(work0 + 2, work_reg_hi_0);
+                simde_mm_storeu_si128(work1, work_reg_lo_1);
+                simde_mm_storeu_si128(work1 + 2, work_reg_hi_1);
+                simde_mm_storeu_si128(work2, work_reg_lo_2);
+                simde_mm_storeu_si128(work2 + 2, work_reg_hi_2);
+                simde_mm_storeu_si128(work3, work_reg_lo_3);
+                simde_mm_storeu_si128(work3 + 2, work_reg_hi_3);
 
                 work0++, work1++, work2++, work3++;
             }
@@ -1051,12 +1051,12 @@ static void IFFT_DIT_Decoder(
                       ^_______________^
 
     Layer 1:
-        0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 
+        0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
         ^_______^       ^_______^
           ^_______^       ^_______^
             ^_______^       ^_______^
               ^_______^       ^_______^
-  
+
     Layer 2:
         0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
         ^___^   ^___^   ^___^   ^___^
@@ -1089,7 +1089,7 @@ static void FFT_DIT2(
     {
         LEO_MUL_TABLES_256(0, log_m);
 
-        const LEO_M256 clr_mask = _mm256_set1_epi8(0x0f);
+        const LEO_M256 clr_mask = simde_mm256_set1_epi8(0x0f);
 
         LEO_M256 * LEO_RESTRICT x32 = reinterpret_cast<LEO_M256 *>(x);
         LEO_M256 * LEO_RESTRICT y32 = reinterpret_cast<LEO_M256 *>(y);
@@ -1097,17 +1097,17 @@ static void FFT_DIT2(
         do
         {
 #define LEO_FFTB_256(x_ptr, y_ptr) { \
-            LEO_M256 x_lo = _mm256_loadu_si256(x_ptr); \
-            LEO_M256 x_hi = _mm256_loadu_si256(x_ptr + 1); \
-            LEO_M256 y_lo = _mm256_loadu_si256(y_ptr); \
-            LEO_M256 y_hi = _mm256_loadu_si256(y_ptr + 1); \
+            LEO_M256 x_lo = simde_mm256_loadu_si256(x_ptr); \
+            LEO_M256 x_hi = simde_mm256_loadu_si256(x_ptr + 1); \
+            LEO_M256 y_lo = simde_mm256_loadu_si256(y_ptr); \
+            LEO_M256 y_hi = simde_mm256_loadu_si256(y_ptr + 1); \
             LEO_MULADD_256(x_lo, x_hi, y_lo, y_hi, 0); \
-            _mm256_storeu_si256(x_ptr, x_lo); \
-            _mm256_storeu_si256(x_ptr + 1, x_hi); \
-            y_lo = _mm256_xor_si256(y_lo, x_lo); \
-            y_hi = _mm256_xor_si256(y_hi, x_hi); \
-            _mm256_storeu_si256(y_ptr, y_lo); \
-            _mm256_storeu_si256(y_ptr + 1, y_hi); }
+            simde_mm256_storeu_si256(x_ptr, x_lo); \
+            simde_mm256_storeu_si256(x_ptr + 1, x_hi); \
+            y_lo = simde_mm256_xor_si256(y_lo, x_lo); \
+            y_hi = simde_mm256_xor_si256(y_hi, x_hi); \
+            simde_mm256_storeu_si256(y_ptr, y_lo); \
+            simde_mm256_storeu_si256(y_ptr + 1, y_hi); }
 
             LEO_FFTB_256(x32, y32);
             y32 += 2, x32 += 2;
@@ -1123,7 +1123,7 @@ static void FFT_DIT2(
     {
         LEO_MUL_TABLES_128(0, log_m);
 
-        const LEO_M128 clr_mask = _mm_set1_epi8(0x0f);
+        const LEO_M128 clr_mask = simde_mm_set1_epi8(0x0f);
 
         LEO_M128 * LEO_RESTRICT x16 = reinterpret_cast<LEO_M128 *>(x);
         LEO_M128 * LEO_RESTRICT y16 = reinterpret_cast<LEO_M128 *>(y);
@@ -1131,17 +1131,17 @@ static void FFT_DIT2(
         do
         {
 #define LEO_FFTB_128(x_ptr, y_ptr) { \
-                LEO_M128 x_lo = _mm_loadu_si128(x_ptr); \
-                LEO_M128 x_hi = _mm_loadu_si128(x_ptr + 2); \
-                LEO_M128 y_lo = _mm_loadu_si128(y_ptr); \
-                LEO_M128 y_hi = _mm_loadu_si128(y_ptr + 2); \
+                LEO_M128 x_lo = simde_mm_loadu_si128(x_ptr); \
+                LEO_M128 x_hi = simde_mm_loadu_si128(x_ptr + 2); \
+                LEO_M128 y_lo = simde_mm_loadu_si128(y_ptr); \
+                LEO_M128 y_hi = simde_mm_loadu_si128(y_ptr + 2); \
                 LEO_MULADD_128(x_lo, x_hi, y_lo, y_hi, 0); \
-                _mm_storeu_si128(x_ptr, x_lo); \
-                _mm_storeu_si128(x_ptr + 2, x_hi); \
-                y_lo = _mm_xor_si128(y_lo, x_lo); \
-                y_hi = _mm_xor_si128(y_hi, x_hi); \
-                _mm_storeu_si128(y_ptr, y_lo); \
-                _mm_storeu_si128(y_ptr + 2, y_hi); }
+                simde_mm_storeu_si128(x_ptr, x_lo); \
+                simde_mm_storeu_si128(x_ptr + 2, x_hi); \
+                y_lo = simde_mm_xor_si128(y_lo, x_lo); \
+                y_hi = simde_mm_xor_si128(y_hi, x_hi); \
+                simde_mm_storeu_si128(y_ptr, y_lo); \
+                simde_mm_storeu_si128(y_ptr + 2, y_hi); }
 
             LEO_FFTB_128(x16 + 1, y16 + 1);
             LEO_FFTB_128(x16, y16);
@@ -1178,7 +1178,7 @@ static void FFT_DIT4(
         LEO_MUL_TABLES_256(23, log_m23);
         LEO_MUL_TABLES_256(02, log_m02);
 
-        const LEO_M256 clr_mask = _mm256_set1_epi8(0x0f);
+        const LEO_M256 clr_mask = simde_mm256_set1_epi8(0x0f);
 
         LEO_M256 * LEO_RESTRICT work0 = reinterpret_cast<LEO_M256 *>(work[0]);
         LEO_M256 * LEO_RESTRICT work1 = reinterpret_cast<LEO_M256 *>(work[dist]);
@@ -1187,14 +1187,14 @@ static void FFT_DIT4(
 
         do
         {
-            LEO_M256 work_reg_lo_0 = _mm256_loadu_si256(work0);
-            LEO_M256 work_reg_hi_0 = _mm256_loadu_si256(work0 + 1);
-            LEO_M256 work_reg_lo_1 = _mm256_loadu_si256(work1);
-            LEO_M256 work_reg_hi_1 = _mm256_loadu_si256(work1 + 1);
-            LEO_M256 work_reg_lo_2 = _mm256_loadu_si256(work2);
-            LEO_M256 work_reg_hi_2 = _mm256_loadu_si256(work2 + 1);
-            LEO_M256 work_reg_lo_3 = _mm256_loadu_si256(work3);
-            LEO_M256 work_reg_hi_3 = _mm256_loadu_si256(work3 + 1);
+            LEO_M256 work_reg_lo_0 = simde_mm256_loadu_si256(work0);
+            LEO_M256 work_reg_hi_0 = simde_mm256_loadu_si256(work0 + 1);
+            LEO_M256 work_reg_lo_1 = simde_mm256_loadu_si256(work1);
+            LEO_M256 work_reg_hi_1 = simde_mm256_loadu_si256(work1 + 1);
+            LEO_M256 work_reg_lo_2 = simde_mm256_loadu_si256(work2);
+            LEO_M256 work_reg_hi_2 = simde_mm256_loadu_si256(work2 + 1);
+            LEO_M256 work_reg_lo_3 = simde_mm256_loadu_si256(work3);
+            LEO_M256 work_reg_hi_3 = simde_mm256_loadu_si256(work3 + 1);
 
             // First layer:
             if (log_m02 != kModulus)
@@ -1202,31 +1202,31 @@ static void FFT_DIT4(
                 LEO_MULADD_256(work_reg_lo_0, work_reg_hi_0, work_reg_lo_2, work_reg_hi_2, 02);
                 LEO_MULADD_256(work_reg_lo_1, work_reg_hi_1, work_reg_lo_3, work_reg_hi_3, 02);
             }
-            work_reg_lo_2 = _mm256_xor_si256(work_reg_lo_0, work_reg_lo_2);
-            work_reg_hi_2 = _mm256_xor_si256(work_reg_hi_0, work_reg_hi_2);
-            work_reg_lo_3 = _mm256_xor_si256(work_reg_lo_1, work_reg_lo_3);
-            work_reg_hi_3 = _mm256_xor_si256(work_reg_hi_1, work_reg_hi_3);
+            work_reg_lo_2 = simde_mm256_xor_si256(work_reg_lo_0, work_reg_lo_2);
+            work_reg_hi_2 = simde_mm256_xor_si256(work_reg_hi_0, work_reg_hi_2);
+            work_reg_lo_3 = simde_mm256_xor_si256(work_reg_lo_1, work_reg_lo_3);
+            work_reg_hi_3 = simde_mm256_xor_si256(work_reg_hi_1, work_reg_hi_3);
 
             // Second layer:
             if (log_m01 != kModulus)
                 LEO_MULADD_256(work_reg_lo_0, work_reg_hi_0, work_reg_lo_1, work_reg_hi_1, 01);
-            work_reg_lo_1 = _mm256_xor_si256(work_reg_lo_0, work_reg_lo_1);
-            work_reg_hi_1 = _mm256_xor_si256(work_reg_hi_0, work_reg_hi_1);
+            work_reg_lo_1 = simde_mm256_xor_si256(work_reg_lo_0, work_reg_lo_1);
+            work_reg_hi_1 = simde_mm256_xor_si256(work_reg_hi_0, work_reg_hi_1);
 
-            _mm256_storeu_si256(work0, work_reg_lo_0);
-            _mm256_storeu_si256(work0 + 1, work_reg_hi_0);
-            _mm256_storeu_si256(work1, work_reg_lo_1);
-            _mm256_storeu_si256(work1 + 1, work_reg_hi_1);
+            simde_mm256_storeu_si256(work0, work_reg_lo_0);
+            simde_mm256_storeu_si256(work0 + 1, work_reg_hi_0);
+            simde_mm256_storeu_si256(work1, work_reg_lo_1);
+            simde_mm256_storeu_si256(work1 + 1, work_reg_hi_1);
 
             if (log_m23 != kModulus)
                 LEO_MULADD_256(work_reg_lo_2, work_reg_hi_2, work_reg_lo_3, work_reg_hi_3, 23);
-            work_reg_lo_3 = _mm256_xor_si256(work_reg_lo_2, work_reg_lo_3);
-            work_reg_hi_3 = _mm256_xor_si256(work_reg_hi_2, work_reg_hi_3);
+            work_reg_lo_3 = simde_mm256_xor_si256(work_reg_lo_2, work_reg_lo_3);
+            work_reg_hi_3 = simde_mm256_xor_si256(work_reg_hi_2, work_reg_hi_3);
 
-            _mm256_storeu_si256(work2, work_reg_lo_2);
-            _mm256_storeu_si256(work2 + 1, work_reg_hi_2);
-            _mm256_storeu_si256(work3, work_reg_lo_3);
-            _mm256_storeu_si256(work3 + 1, work_reg_hi_3);
+            simde_mm256_storeu_si256(work2, work_reg_lo_2);
+            simde_mm256_storeu_si256(work2 + 1, work_reg_hi_2);
+            simde_mm256_storeu_si256(work3, work_reg_lo_3);
+            simde_mm256_storeu_si256(work3 + 1, work_reg_hi_3);
 
             work0 += 2, work1 += 2, work2 += 2, work3 += 2;
 
@@ -1244,7 +1244,7 @@ static void FFT_DIT4(
         LEO_MUL_TABLES_128(23, log_m23);
         LEO_MUL_TABLES_128(02, log_m02);
 
-        const LEO_M128 clr_mask = _mm_set1_epi8(0x0f);
+        const LEO_M128 clr_mask = simde_mm_set1_epi8(0x0f);
 
         LEO_M128 * LEO_RESTRICT work0 = reinterpret_cast<LEO_M128 *>(work[0]);
         LEO_M128 * LEO_RESTRICT work1 = reinterpret_cast<LEO_M128 *>(work[dist]);
@@ -1255,14 +1255,14 @@ static void FFT_DIT4(
         {
             for (unsigned i = 0; i < 2; ++i)
             {
-                LEO_M128 work_reg_lo_0 = _mm_loadu_si128(work0);
-                LEO_M128 work_reg_hi_0 = _mm_loadu_si128(work0 + 2);
-                LEO_M128 work_reg_lo_1 = _mm_loadu_si128(work1);
-                LEO_M128 work_reg_hi_1 = _mm_loadu_si128(work1 + 2);
-                LEO_M128 work_reg_lo_2 = _mm_loadu_si128(work2);
-                LEO_M128 work_reg_hi_2 = _mm_loadu_si128(work2 + 2);
-                LEO_M128 work_reg_lo_3 = _mm_loadu_si128(work3);
-                LEO_M128 work_reg_hi_3 = _mm_loadu_si128(work3 + 2);
+                LEO_M128 work_reg_lo_0 = simde_mm_loadu_si128(work0);
+                LEO_M128 work_reg_hi_0 = simde_mm_loadu_si128(work0 + 2);
+                LEO_M128 work_reg_lo_1 = simde_mm_loadu_si128(work1);
+                LEO_M128 work_reg_hi_1 = simde_mm_loadu_si128(work1 + 2);
+                LEO_M128 work_reg_lo_2 = simde_mm_loadu_si128(work2);
+                LEO_M128 work_reg_hi_2 = simde_mm_loadu_si128(work2 + 2);
+                LEO_M128 work_reg_lo_3 = simde_mm_loadu_si128(work3);
+                LEO_M128 work_reg_hi_3 = simde_mm_loadu_si128(work3 + 2);
 
                 // First layer:
                 if (log_m02 != kModulus)
@@ -1270,31 +1270,31 @@ static void FFT_DIT4(
                     LEO_MULADD_128(work_reg_lo_0, work_reg_hi_0, work_reg_lo_2, work_reg_hi_2, 02);
                     LEO_MULADD_128(work_reg_lo_1, work_reg_hi_1, work_reg_lo_3, work_reg_hi_3, 02);
                 }
-                work_reg_lo_2 = _mm_xor_si128(work_reg_lo_0, work_reg_lo_2);
-                work_reg_hi_2 = _mm_xor_si128(work_reg_hi_0, work_reg_hi_2);
-                work_reg_lo_3 = _mm_xor_si128(work_reg_lo_1, work_reg_lo_3);
-                work_reg_hi_3 = _mm_xor_si128(work_reg_hi_1, work_reg_hi_3);
+                work_reg_lo_2 = simde_mm_xor_si128(work_reg_lo_0, work_reg_lo_2);
+                work_reg_hi_2 = simde_mm_xor_si128(work_reg_hi_0, work_reg_hi_2);
+                work_reg_lo_3 = simde_mm_xor_si128(work_reg_lo_1, work_reg_lo_3);
+                work_reg_hi_3 = simde_mm_xor_si128(work_reg_hi_1, work_reg_hi_3);
 
                 // Second layer:
                 if (log_m01 != kModulus)
                     LEO_MULADD_128(work_reg_lo_0, work_reg_hi_0, work_reg_lo_1, work_reg_hi_1, 01);
-                work_reg_lo_1 = _mm_xor_si128(work_reg_lo_0, work_reg_lo_1);
-                work_reg_hi_1 = _mm_xor_si128(work_reg_hi_0, work_reg_hi_1);
+                work_reg_lo_1 = simde_mm_xor_si128(work_reg_lo_0, work_reg_lo_1);
+                work_reg_hi_1 = simde_mm_xor_si128(work_reg_hi_0, work_reg_hi_1);
 
-                _mm_storeu_si128(work0, work_reg_lo_0);
-                _mm_storeu_si128(work0 + 2, work_reg_hi_0);
-                _mm_storeu_si128(work1, work_reg_lo_1);
-                _mm_storeu_si128(work1 + 2, work_reg_hi_1);
+                simde_mm_storeu_si128(work0, work_reg_lo_0);
+                simde_mm_storeu_si128(work0 + 2, work_reg_hi_0);
+                simde_mm_storeu_si128(work1, work_reg_lo_1);
+                simde_mm_storeu_si128(work1 + 2, work_reg_hi_1);
 
                 if (log_m23 != kModulus)
                     LEO_MULADD_128(work_reg_lo_2, work_reg_hi_2, work_reg_lo_3, work_reg_hi_3, 23);
-                work_reg_lo_3 = _mm_xor_si128(work_reg_lo_2, work_reg_lo_3);
-                work_reg_hi_3 = _mm_xor_si128(work_reg_hi_2, work_reg_hi_3);
+                work_reg_lo_3 = simde_mm_xor_si128(work_reg_lo_2, work_reg_lo_3);
+                work_reg_hi_3 = simde_mm_xor_si128(work_reg_hi_2, work_reg_hi_3);
 
-                _mm_storeu_si128(work2, work_reg_lo_2);
-                _mm_storeu_si128(work2 + 2, work_reg_hi_2);
-                _mm_storeu_si128(work3, work_reg_lo_3);
-                _mm_storeu_si128(work3 + 2, work_reg_hi_3);
+                simde_mm_storeu_si128(work2, work_reg_lo_2);
+                simde_mm_storeu_si128(work2 + 2, work_reg_hi_2);
+                simde_mm_storeu_si128(work3, work_reg_lo_3);
+                simde_mm_storeu_si128(work3 + 2, work_reg_hi_3);
 
                 work0++, work1++, work2++, work3++;
             }

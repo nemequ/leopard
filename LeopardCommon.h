@@ -236,6 +236,13 @@
 //------------------------------------------------------------------------------
 // Platform/Architecture
 
+#include "simde/simde/x86/avx2.h"
+#include "simde/simde/x86/ssse3.h"
+#define LEO_TRY_AVX2
+#define LEO_ALIGN_BYTES 32
+#define LEO_M128 simde__m128i
+#define LEO_M256 simde__m256i
+
 #ifdef _MSC_VER
     #include <intrin.h>
 #endif
@@ -244,47 +251,11 @@
     #define LEO_TARGET_MOBILE
 #endif // ANDROID
 
-#if defined(__AVX2__) || (defined (_MSC_VER) && _MSC_VER >= 1900)
-    #define LEO_TRY_AVX2 /* 256-bit */
-    #include <immintrin.h>
-    #define LEO_ALIGN_BYTES 32
-#else // __AVX2__
-    #define LEO_ALIGN_BYTES 16
-#endif // __AVX2__
-
-#if !defined(LEO_TARGET_MOBILE)
-    // Note: MSVC currently only supports SSSE3 but not AVX2
-    #include <tmmintrin.h> // SSSE3: _mm_shuffle_epi8
-    #include <emmintrin.h> // SSE2
-#endif // LEO_TARGET_MOBILE
-
-#if defined(HAVE_ARM_NEON_H)
-    #include <arm_neon.h>
-#endif // HAVE_ARM_NEON_H
-
 #if defined(LEO_TARGET_MOBILE)
 
     #define LEO_ALIGNED_ACCESSES /* Inputs must be aligned to LEO_ALIGN_BYTES */
 
-# if defined(HAVE_ARM_NEON_H)
-    // Compiler-specific 128-bit SIMD register keyword
-    #define LEO_M128 uint8x16_t
-    #define LEO_TRY_NEON
-#else
-    #define LEO_M128 uint64_t
-# endif
-
-#else // LEO_TARGET_MOBILE
-
-    // Compiler-specific 128-bit SIMD register keyword
-    #define LEO_M128 __m128i
-
 #endif // LEO_TARGET_MOBILE
-
-#ifdef LEO_TRY_AVX2
-    // Compiler-specific 256-bit SIMD register keyword
-    #define LEO_M256 __m256i
-#endif
 
 // Compiler-specific C++11 restrict keyword
 #define LEO_RESTRICT __restrict
